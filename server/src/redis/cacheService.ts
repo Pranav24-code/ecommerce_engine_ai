@@ -23,9 +23,17 @@ export const initRedis = async (): Promise<void> => {
       console.log('[Redis] Connected successfully.');
     });
 
-    await redisClient.connect();
+    // Timeout after 3 seconds — if Redis isn't running, skip it gracefully
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Redis connection timed out')), 3000)
+    );
+
+    await Promise.race([redisClient.connect(), timeout]);
   } catch (error) {
     isRedisConnected = false;
+    if (redisClient) {
+      redisClient.quit().catch(() => {});
+    }
     console.log('[Redis] Server unreachable. Falling back to high-performance in-memory cache.');
   }
 };
