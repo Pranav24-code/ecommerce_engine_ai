@@ -1,37 +1,180 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Base ─────────────────────────────────────────── */
 @layer base {
+  :root {
+    --color-primary: 99 102 241;
+    --color-secondary: 217 70 239;
+    --color-accent: 16 185 129;
+  }
+
+  * {
+    @apply border-slate-200 dark:border-slate-800;
+  }
+
   body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
+    @apply bg-surface-50 dark:bg-surface-950 text-slate-900 dark:text-slate-100 antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Outfit', system-ui, sans-serif;
+    @apply font-bold tracking-tight;
+  }
+
+  ::selection {
+    background: rgba(99, 102, 241, 0.25);
+    color: inherit;
   }
 }
 
-.glass-card {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+/* ─── Components ────────────────────────────────────── */
+@layer components {
+
+  /* Buttons */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl
+           bg-gradient-to-r from-primary-600 to-primary-500
+           text-white font-semibold text-sm
+           shadow-glow-sm hover:shadow-glow
+           hover:-translate-y-0.5 active:translate-y-0
+           transition-all duration-200;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl
+           bg-transparent border border-slate-300 dark:border-slate-700
+           text-slate-700 dark:text-slate-300 font-medium text-sm
+           hover:bg-slate-100 dark:hover:bg-slate-800
+           hover:-translate-y-0.5 active:translate-y-0
+           transition-all duration-200;
+  }
+
+  .btn-icon {
+    @apply p-2.5 rounded-xl text-slate-500 dark:text-slate-400
+           hover:bg-slate-100 dark:hover:bg-slate-800
+           hover:text-primary-600 dark:hover:text-primary-400
+           transition-all duration-150;
+  }
+
+  /* Glass card */
+  .glass {
+    @apply bg-white/75 dark:bg-slate-900/75 backdrop-blur-xl
+           border border-white/60 dark:border-slate-700/60
+           shadow-card;
+  }
+
+  .glass-dark {
+    @apply bg-slate-900/60 backdrop-blur-xl
+           border border-slate-700/50
+           shadow-card;
+  }
+
+  /* Input field */
+  .input {
+    @apply w-full px-4 py-3 rounded-xl
+           bg-slate-50 dark:bg-slate-800/80
+           border border-slate-200 dark:border-slate-700
+           text-sm text-slate-900 dark:text-slate-100
+           placeholder:text-slate-400 dark:placeholder:text-slate-500
+           focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500
+           transition-all duration-200;
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold;
+  }
+
+  .badge-primary {
+    @apply badge bg-primary-100 dark:bg-primary-950/80 text-primary-700 dark:text-primary-300
+           border border-primary-200 dark:border-primary-800;
+  }
+
+  .badge-gradient {
+    @apply badge bg-gradient-to-r from-primary-500 to-secondary-500 text-white;
+  }
+
+  /* Section heading */
+  .section-title {
+    @apply text-2xl sm:text-3xl font-display font-bold tracking-tight;
+  }
+
+  .section-subtitle {
+    @apply text-sm font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-widest;
+  }
+
+  /* Glow ring on focus/hover */
+  .glow-ring {
+    @apply ring-2 ring-primary-500/50 ring-offset-2 ring-offset-white dark:ring-offset-slate-900;
+  }
+
+  /* Shimmer loading skeleton */
+  .skeleton {
+    @apply bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200
+           dark:from-slate-800 dark:via-slate-700 dark:to-slate-800
+           animate-shimmer bg-[length:200%_100%] rounded-2xl;
+  }
+
+  /* Animated gradient text */
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-400 via-secondary-400 to-accent-400
+           bg-clip-text text-transparent bg-[length:200%_auto]
+           animate-gradient-x;
+  }
+
+  /* Card hover lift */
+  .card-hover {
+    @apply transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card-hover;
+  }
+
+  /* Dot grid background */
+  .dot-grid {
+    background-image: radial-gradient(circle, rgba(99,102,241,0.12) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
 }
 
-.dark .glass-card {
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(30, 41, 59, 0.8);
+/* ─── Utilities ─────────────────────────────────────── */
+@layer utilities {
+  .font-display {
+    font-family: 'Outfit', system-ui, sans-serif;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .scrollbar-hidden {
+    scrollbar-width: none;
+  }
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+/* ─── Custom Scrollbar ──────────────────────────────── */
+::-webkit-scrollbar          { width: 6px; height: 6px; }
+::-webkit-scrollbar-track    { background: transparent; }
+::-webkit-scrollbar-thumb    { background: #cbd5e1; border-radius: 99px; }
+.dark ::-webkit-scrollbar-thumb { background: #334155; }
+
+/* ─── Animations ────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
 }
-::-webkit-scrollbar-track {
-  background: transparent;
+
+@keyframes float {
+  0%, 100% { transform: translateY(0);    }
+  50%       { transform: translateY(-10px); }
 }
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
-}
-.dark ::-webkit-scrollbar-thumb {
-  background: #334155;
+
+@keyframes gradient-x {
+  0%, 100% { background-position: left center;  }
+  50%       { background-position: right center; }
 }
