@@ -1,39 +1,42 @@
-import { createClient } from 'redis';
-import { config } from '../config/env';
+import { Redis } from '@upstash/redis';
+import dotenv from 'dotenv';
+import path from 'path';
 
-let redisClient: ReturnType<typeof createClient> | null = null;
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+
+let upstashClient: Redis | null = null;
 let isRedisConnected = false;
 
 // Fallback in-memory cache if Redis is offline
 const inMemoryCache = new Map<string, { value: string; expiresAt: number }>();
 
 export const initRedis = async (): Promise<void> => {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (!url || !token) {
+    console.log('[Redis] UPSTASH_REDIS_REST_URL or TOKEN not set. Falling back to in-memory cache.');
+    return;
+  }
+
   try {
-    redisClient = createClient({ url: config.redisUrl });
+    upstashClient = new Redis({ url, token });
 
-    redisClient.on('error', (err) => {
-      if (isRedisConnected) {
-        console.warn(`[Redis Error]: ${err.message}`);
-      }
-      isRedisConnected = false;
-    });
+    // Ping to verify the connection
+    const pong = await Promise.race([
+      upstashClient.ping(),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Redis connection timed out')), 5000)
+      ),
+    ]);
 
-    redisClient.on('connect', () => {
+    if (pong === 'PONG') {
       isRedisConnected = true;
-      console.log('[Redis] Connected successfully.');
-    });
-
-    // Timeout after 3 seconds — if Redis isn't running, skip it gracefully
-    const timeout = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('Redis connection timed out')), 3000)
-    );
-
-    await Promise.race([redisClient.connect(), timeout]);
-  } catch (error) {
-    isRedisConnected = false;
-    if (redisClient) {
-      redisClient.quit().catch(() => {});
+      console.log('[Redis] Connected to Upstash successfully.');
     }
+  } catch (error: any) {
+    isRedisConnected = false;
+    upstashClient = null;
     console.log('[Redis] Server unreachable. Falling back to high-performance in-memory cache.');
   }
 };
@@ -41,8 +44,8 @@ export const initRedis = async (): Promise<void> => {
 export const cacheService = {
   get: async <T>(key: string): Promise<T | null> => {
     try {
-      if (isRedisConnected && redisClient) {
-        const data = await redisClient.get(key);
+      if (isRedisConnected && upstashClient) {
+        const data = await upstashClient.get<string>(key);
         return data ? JSON.parse(data) : null;
       }
     } catch (e) {
@@ -61,8 +64,8 @@ export const cacheService = {
   set: async (key: string, value: any, ttlSeconds: number = 300): Promise<void> => {
     const stringified = JSON.stringify(value);
     try {
-      if (isRedisConnected && redisClient) {
-        await redisClient.set(key, stringified, { EX: ttlSeconds });
+      if (isRedisConnected && upstashClient) {
+        await upstashClient.set(key, stringified, { ex: ttlSeconds });
         return;
       }
     } catch (e) {
@@ -77,14 +80,14 @@ export const cacheService = {
 
   del: async (keyPatternOrKey: string): Promise<void> => {
     try {
-      if (isRedisConnected && redisClient) {
+      if (isRedisConnected && upstashClient) {
         if (keyPatternOrKey.includes('*')) {
-          const keys = await redisClient.keys(keyPatternOrKey);
+          const keys = await upstashClient.keys(keyPatternOrKey);
           if (keys.length > 0) {
-            await redisClient.del(keys);
+            await upstashClient.del(...keys);
           }
         } else {
-          await redisClient.del(keyPatternOrKey);
+          await upstashClient.del(keyPatternOrKey);
         }
       }
     } catch (e) {
