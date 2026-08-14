@@ -1,21 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Filter, Sparkles, SlidersHorizontal, X, Search, ChevronRight } from 'lucide-react';
+import { Filter, Sparkles, SlidersHorizontal, X, Search, ChevronRight, ChevronLeft, ChevronRight as ChevronRightIcon } from 'lucide-react';
 import { Product, Category } from '../../types';
 import { ProductCard } from '../../components/ProductCard';
 import { api } from '../../services/api';
+
+const PRODUCTS_PER_PAGE = 24;
 
 export const ProductListing: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   const currentCategory = searchParams.get('category') || 'All';
   const currentSearch = searchParams.get('search') || '';
   const currentSort = searchParams.get('sort') || 'newest';
   const minPrice = searchParams.get('minPrice') || '';
   const maxPrice = searchParams.get('maxPrice') || '';
+  const currentPage = Number(searchParams.get('page') || '1');
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -34,7 +39,7 @@ export const ProductListing: React.FC = () => {
       setLoading(true);
       try {
         let endpoint = '/products';
-        const params: any = {};
+        const params: any = { limit: PRODUCTS_PER_PAGE, page: currentPage };
 
         if (currentSearch) {
           endpoint = '/search';
@@ -51,8 +56,19 @@ export const ProductListing: React.FC = () => {
 
         const res = await api.get(endpoint, { params });
         if (res.data.success) {
-          const list = currentSearch ? res.data.data : res.data.data.products || res.data.data;
-          setProducts(list);
+          const payload = currentSearch ? res.data.data : res.data.data;
+          if (currentSearch) {
+            const list = Array.isArray(payload) ? payload : payload.products || [];
+            setProducts(list);
+            setTotalProducts(list.length);
+            setTotalPages(1);
+          } else {
+            const list = payload.products || payload || [];
+            const pagination = payload.pagination;
+            setProducts(list);
+            setTotalProducts(pagination?.total ?? list.length);
+            setTotalPages(pagination?.pages ?? 1);
+          }
         }
       } catch (err) {
         console.error('Failed to fetch products:', err);
@@ -62,25 +78,52 @@ export const ProductListing: React.FC = () => {
     };
 
     fetchProducts();
-  }, [currentCategory, currentSearch, currentSort, minPrice, maxPrice]);
+  }, [currentCategory, currentSearch, currentSort, minPrice, maxPrice, currentPage]);
 
   const handleCategoryChange = (catName: string) => {
     const params = new URLSearchParams(searchParams);
     if (catName === 'All') params.delete('category');
     else params.set('category', catName);
+    params.delete('page'); // reset to page 1 on category change
     setSearchParams(params);
   };
 
   const handleSortChange = (sortVal: string) => {
     const params = new URLSearchParams(searchParams);
     params.set('sort', sortVal);
+    params.delete('page');
     setSearchParams(params);
   };
 
   const clearSearch = () => {
     const params = new URLSearchParams(searchParams);
     params.delete('search');
+    params.delete('page');
     setSearchParams(params);
+  };
+
+  const goToPage = useCallback((page: number) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('page', String(page));
+    setSearchParams(params);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [searchParams, setSearchParams]);
+
+  // Build page numbers to show
+  const getPageNumbers = () => {
+    const pages: (number | '...')[] = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (currentPage > 3) pages.push('...');
+      for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+        pages.push(i);
+      }
+      if (currentPage < totalPages - 2) pages.push('...');
+      pages.push(totalPages);
+    }
+    return pages;
   };
 
   return (
@@ -110,7 +153,9 @@ export const ProductListing: React.FC = () => {
             <p className="text-sm text-slate-500 dark:text-slate-400">
               {currentSearch
                 ? `Showing semantically matching products powered by MongoDB Atlas Vector embeddings.`
-                : `Showing products filtered by category: ${currentCategory}`}
+                : totalProducts > 0
+                  ? `Showing ${Math.min((currentPage - 1) * PRODUCTS_PER_PAGE + 1, totalProducts)}–${Math.min(currentPage * PRODUCTS_PER_PAGE, totalProducts)} of ${totalProducts} products${currentCategory !== 'All' ? ` in "${currentCategory}"` : ''}`
+                  : `Showing products filtered by category: ${currentCategory}`}
             </p>
           </div>
 
@@ -155,7 +200,7 @@ export const ProductListing: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        
+
         {/* Filter Sidebar */}
         <div className="space-y-6">
           <div className="glass p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800 sticky top-24 space-y-6">
@@ -200,10 +245,10 @@ export const ProductListing: React.FC = () => {
         </div>
 
         {/* Product Grid */}
-        <div className="lg:col-span-3">
+        <div className="lg:col-span-3 space-y-8">
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {[1, 2, 3, 4, 5, 6].map((n) => (
+              {Array.from({ length: PRODUCTS_PER_PAGE }).map((_, n) => (
                 <div key={n} className="h-88 skeleton rounded-2xl"></div>
               ))}
             </div>
@@ -228,11 +273,64 @@ export const ProductListing: React.FC = () => {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {products.map((product) => (
-                <ProductCard key={product._id} product={product} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                {products.map((product) => (
+                  <ProductCard key={product._id} product={product} />
+                ))}
+              </div>
+
+              {/* ── Pagination ── */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between pt-4 border-t border-slate-200/80 dark:border-slate-800">
+                  {/* Prev */}
+                  <button
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage <= 1}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
+                  >
+                    <ChevronLeft className="w-4 h-4" /> Previous
+                  </button>
+
+                  {/* Page numbers */}
+                  <div className="flex items-center gap-1.5">
+                    {getPageNumbers().map((p, idx) =>
+                      p === '...' ? (
+                        <span key={`ellipsis-${idx}`} className="px-2 text-slate-400 text-sm select-none">…</span>
+                      ) : (
+                        <button
+                          key={p}
+                          onClick={() => goToPage(p as number)}
+                          className={`w-9 h-9 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                            currentPage === p
+                              ? 'bg-primary-600 text-white shadow-glow-sm'
+                              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      )
+                    )}
+                  </div>
+
+                  {/* Next */}
+                  <button
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage >= totalPages}
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
+                  >
+                    Next <ChevronRightIcon className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+
+              {/* Page info text */}
+              {totalPages > 1 && (
+                <p className="text-center text-xs text-slate-400 dark:text-slate-500">
+                  Page {currentPage} of {totalPages} · {totalProducts} total products
+                </p>
+              )}
+            </>
           )}
         </div>
 

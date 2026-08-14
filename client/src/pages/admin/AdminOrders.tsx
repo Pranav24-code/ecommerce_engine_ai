@@ -61,7 +61,7 @@ export const AdminOrders: React.FC = () => {
                   <div className="font-semibold text-xs">{o.user?.name || 'Customer'}</div>
                   <span className="text-[10px] text-slate-400">{o.user?.email}</span>
                 </td>
-                <td className="py-3 px-4 font-extrabold">${o.grandTotal}</td>
+                <td className="py-3 px-4 font-extrabold">₹{o.grandTotal}</td>
                 <td className="py-3 px-4">
                   <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
                     {o.orderStatus}

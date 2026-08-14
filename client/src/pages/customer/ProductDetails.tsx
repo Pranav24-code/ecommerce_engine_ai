@@ -210,16 +210,16 @@ export const ProductDetails: React.FC = () => {
           {/* Pricing */}
           <div className="p-4 rounded-2xl glass border border-slate-200/80 dark:border-slate-800 flex items-baseline gap-3">
             <span className="text-3xl font-display font-bold text-slate-900 dark:text-white">
-              ${product.price}
+              ₹{product.price}
             </span>
             {product.originalPrice && product.originalPrice > product.price && (
               <span className="text-lg text-slate-400 line-through">
-                ${product.originalPrice}
+                ₹{product.originalPrice}
               </span>
             )}
             {discountPercent && (
               <span className="text-xs font-bold text-accent-500 ml-auto">
-                Save ${(product.originalPrice! - product.price).toFixed(2)}
+                Save ₹{(product.originalPrice! - product.price).toFixed(2)}
               </span>
             )}
           </div>

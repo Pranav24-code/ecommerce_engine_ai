@@ -83,7 +83,7 @@ export const AdminCoupons: React.FC = () => {
 
           <input
             type="number"
-            placeholder="Minimum Order Value ($)"
+            placeholder="Minimum Order Value (₹)"
             value={minOrderValue}
             onChange={(e) => setMinOrderValue(e.target.value)}
             className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
@@ -107,7 +107,7 @@ export const AdminCoupons: React.FC = () => {
               <div key={c._id} className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
                 <div>
                   <span className="font-mono font-bold text-primary-600 text-sm">{c.code}</span>
-                  <p className="text-xs text-slate-500">{c.discountPercentage}% OFF on orders over ${c.minOrderValue}</p>
+                  <p className="text-xs text-slate-500">{c.discountPercentage}% OFF on orders over ₹{c.minOrderValue}</p>
                 </div>
 
                 <button onClick={() => handleDelete(c._id)} className="p-2 text-slate-400 hover:text-red-500">

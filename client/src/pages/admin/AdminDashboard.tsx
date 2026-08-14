@@ -49,7 +49,7 @@ export const AdminDashboard: React.FC = () => {
           </div>
           <div>
             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Revenue</span>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">${metrics.totalRevenue?.toLocaleString()}</h3>
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">₹{metrics.totalRevenue?.toLocaleString()}</h3>
           </div>
         </div>
 
@@ -113,7 +113,7 @@ export const AdminDashboard: React.FC = () => {
                       {order.orderStatus}
                     </span>
                   </td>
-                  <td className="py-3 px-4 font-bold">${order.grandTotal}</td>
+                  <td className="py-3 px-4 font-bold">₹{order.grandTotal}</td>
                   <td className="py-3 px-4 text-xs text-slate-400">{new Date(order.createdAt).toLocaleDateString()}</td>
                 </tr>
               ))}

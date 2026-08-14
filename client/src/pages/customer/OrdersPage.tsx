@@ -75,7 +75,7 @@ export const OrdersPage: React.FC = () => {
 
                 <div className="flex items-center gap-4">
                   {getStatusBadge(order.orderStatus)}
-                  <span className="text-lg font-extrabold text-primary-600 dark:text-primary-400">${order.grandTotal.toFixed(2)}</span>
+                  <span className="text-lg font-extrabold text-primary-600 dark:text-primary-400">₹{order.grandTotal.toFixed(2)}</span>
                 </div>
               </div>
 
@@ -85,9 +85,9 @@ export const OrdersPage: React.FC = () => {
                     <img src={item.image} alt={item.title} className="w-16 h-16 rounded-xl object-cover bg-slate-100 dark:bg-slate-800" />
                     <div className="flex-1">
                       <h4 className="font-bold text-sm">{item.title}</h4>
-                      <p className="text-xs text-slate-500">Qty: {item.quantity} × ${item.price}</p>
+                      <p className="text-xs text-slate-500">Qty: {item.quantity} × ₹{item.price}</p>
                     </div>
-                    <span className="font-bold text-sm">${(item.quantity * item.price).toFixed(2)}</span>
+                    <span className="font-bold text-sm">₹{(item.quantity * item.price).toFixed(2)}</span>
                   </div>
                 ))}
               </div>

@@ -119,10 +119,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <div className="flex items-center justify-between">
             <div className="flex items-baseline gap-1.5">
               <span className="font-display text-lg font-bold text-slate-900 dark:text-white">
-                ${product.price}
+                ₹{product.price}
               </span>
               {product.originalPrice && product.originalPrice > product.price && (
-                <span className="text-xs text-slate-400 line-through">${product.originalPrice}</span>
+                <span className="text-xs text-slate-400 line-through">₹{product.originalPrice}</span>
               )}
             </div>
 

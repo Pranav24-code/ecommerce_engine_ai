@@ -251,9 +251,9 @@ export const CheckoutPage: React.FC = () => {
                 <div key={item.product._id} className="flex justify-between items-center text-sm gap-2">
                   <div className="truncate flex-1">
                     <span className="font-medium text-slate-800 dark:text-slate-200 block truncate">{item.product.title}</span>
-                    <span className="text-xs text-slate-400">Qty: {item.quantity} × ${item.price}</span>
+                    <span className="text-xs text-slate-400">Qty: {item.quantity} × ₹{item.price}</span>
                   </div>
-                  <span className="font-display font-bold text-slate-900 dark:text-white">${(item.price * item.quantity).toFixed(2)}</span>
+                  <span className="font-display font-bold text-slate-900 dark:text-white">₹{(item.price * item.quantity).toFixed(2)}</span>
                 </div>
               ))}
             </div>
@@ -261,25 +261,25 @@ export const CheckoutPage: React.FC = () => {
             <div className="border-t border-slate-200/80 dark:border-slate-800 pt-4 space-y-2.5 text-sm">
               <div className="flex justify-between text-slate-500 dark:text-slate-400">
                 <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>₹{subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-slate-500 dark:text-slate-400">
                 <span>Estimated Tax (8%)</span>
-                <span>${tax.toFixed(2)}</span>
+                <span>₹{tax.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-slate-500 dark:text-slate-400">
                 <span>Shipping</span>
-                <span>{shippingFee === 0 ? <span className="text-accent-500 font-semibold">FREE</span> : `$${shippingFee.toFixed(2)}`}</span>
+                <span>{shippingFee === 0 ? <span className="text-accent-500 font-semibold">FREE</span> : `₹${shippingFee.toFixed(2)}`}</span>
               </div>
               {discountAmount > 0 && (
                 <div className="flex justify-between text-accent-500 font-semibold">
                   <span>Promotional Discount</span>
-                  <span>-${discountAmount.toFixed(2)}</span>
+                  <span>-₹{discountAmount.toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between text-lg font-display font-extrabold text-slate-900 dark:text-white border-t border-slate-200/80 dark:border-slate-800 pt-3">
                 <span>Grand Total</span>
-                <span className="gradient-text">${grandTotal.toFixed(2)}</span>
+                <span className="gradient-text">₹{grandTotal.toFixed(2)}</span>
               </div>
             </div>
 

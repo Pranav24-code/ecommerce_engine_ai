@@ -5,7 +5,7 @@ import { generateEmbedding } from '../embeddings/embeddingService';
 
 export const getAllProducts = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { category, brand, minPrice, maxPrice, isFeatured, sort, page = 1, limit = 20 } = req.query;
+    const { category, brand, minPrice, maxPrice, isFeatured, sort, page = 1, limit = 100 } = req.query;
     const cacheKey = `products:all:${JSON.stringify(req.query)}`;
 
     const cachedData = await cacheService.get(cacheKey);

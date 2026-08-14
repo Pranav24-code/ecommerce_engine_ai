@@ -21,7 +21,7 @@ export const CartPage: React.FC = () => {
       });
       if (res.data.success) {
         setDiscountAmount(res.data.data.discountAmount);
-        setCouponMessage(`Coupon ${res.data.data.code} applied! Saved $${res.data.data.discountAmount}`);
+        setCouponMessage(`Coupon ${res.data.data.code} applied! Saved ₹${res.data.data.discountAmount}`);
       }
     } catch (err: any) {
       setCouponMessage(err.response?.data?.message || 'Invalid coupon code');
@@ -71,7 +71,7 @@ export const CartPage: React.FC = () => {
                 <div>
                   <h3 className="font-bold text-sm text-slate-900 dark:text-white line-clamp-1">{item.product.title}</h3>
                   <span className="text-xs text-slate-400">{item.product.category}</span>
-                  <p className="text-sm font-semibold text-primary-600 dark:text-primary-400 mt-1">${item.price}</p>
+                  <p className="text-sm font-semibold text-primary-600 dark:text-primary-400 mt-1">₹{item.price}</p>
                 </div>
               </div>
 
@@ -92,7 +92,7 @@ export const CartPage: React.FC = () => {
                   </button>
                 </div>
 
-                <span className="font-bold text-sm">${(item.price * item.quantity).toFixed(2)}</span>
+                <span className="font-bold text-sm">₹{(item.price * item.quantity).toFixed(2)}</span>
 
                 <button
                   onClick={() => removeFromCart(item.product._id)}
@@ -139,29 +139,29 @@ export const CartPage: React.FC = () => {
             <div className="space-y-3 text-sm border-t border-slate-100 dark:border-slate-800 pt-4">
               <div className="flex justify-between text-slate-600 dark:text-slate-400">
                 <span>Subtotal</span>
-                <span className="font-semibold text-slate-900 dark:text-white">${subtotal.toFixed(2)}</span>
+                <span className="font-semibold text-slate-900 dark:text-white">₹{subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-slate-600 dark:text-slate-400">
                 <span>Estimated Tax (8%)</span>
-                <span className="font-semibold text-slate-900 dark:text-white">${tax.toFixed(2)}</span>
+                <span className="font-semibold text-slate-900 dark:text-white">₹{tax.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-slate-600 dark:text-slate-400">
                 <span>Shipping Fee</span>
                 <span className="font-semibold text-slate-900 dark:text-white">
-                  {shipping === 0 ? <span className="text-emerald-500 font-bold uppercase text-xs">Free</span> : `$${shipping}`}
+                  {shipping === 0 ? <span className="text-emerald-500 font-bold uppercase text-xs">Free</span> : `₹${shipping}`}
                 </span>
               </div>
 
               {discountAmount > 0 && (
                 <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-semibold">
                   <span>Discount</span>
-                  <span>-${discountAmount.toFixed(2)}</span>
+                  <span>-₹{discountAmount.toFixed(2)}</span>
                 </div>
               )}
 
               <div className="flex justify-between text-base font-extrabold border-t border-slate-100 dark:border-slate-800 pt-3 text-slate-900 dark:text-white">
                 <span>Grand Total</span>
-                <span className="text-primary-600 dark:text-primary-400">${grandTotal.toFixed(2)}</span>
+                <span className="text-primary-600 dark:text-primary-400">₹{grandTotal.toFixed(2)}</span>
               </div>
             </div>
 

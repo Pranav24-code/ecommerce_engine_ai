@@ -111,7 +111,7 @@ export const AdminProducts: React.FC = () => {
               <div className="grid grid-cols-2 gap-3">
                 <input
                   type="number"
-                  placeholder="Price ($)"
+                  placeholder="Price (₹)"
                   required
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
@@ -187,7 +187,7 @@ export const AdminProducts: React.FC = () => {
                   <span className="font-semibold">{p.title}</span>
                 </td>
                 <td className="py-3 px-4 text-xs font-medium text-slate-500">{p.category}</td>
-                <td className="py-3 px-4 font-bold">${p.price}</td>
+                <td className="py-3 px-4 font-bold">₹{p.price}</td>
                 <td className="py-3 px-4">{p.stock} units</td>
                 <td className="py-3 px-4 text-right space-x-2">
                   <button
