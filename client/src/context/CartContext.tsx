@@ -18,26 +18,44 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
   const [cart, setCart] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem('guestCart');
+    const userId = user?.id || (user as any)?._id;
+    const saved = userId ? localStorage.getItem(`cart_${userId}`) : localStorage.getItem('guestCart');
     return saved ? JSON.parse(saved) : [];
   });
 
-  // Sync with API when user is logged in
+  // Sync with API or local storage when user logs in / out
   useEffect(() => {
     if (user) {
+      const userId = user.id || (user as any)._id;
+      // Load user specific cart
+      const savedUserCart = localStorage.getItem(`cart_${userId}`);
+      if (savedUserCart) {
+        try {
+          setCart(JSON.parse(savedUserCart));
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
       api.get('/cart')
         .then((res) => {
-          if (res.data.success && res.data.data?.items) {
+          if (res.data.success && res.data.data?.items && res.data.data.items.length > 0) {
             setCart(res.data.data.items);
           }
         })
         .catch((err) => console.warn('Could not fetch server cart:', err));
+    } else {
+      // Reset cart when user is logged out so next user doesn't see previous user's cart!
+      setCart([]);
     }
   }, [user]);
 
   useEffect(() => {
-    if (!user) {
-      localStorage.setItem('guestCart', JSON.stringify(cart));
+    if (user) {
+      const userId = user.id || (user as any)._id;
+      localStorage.setItem(`cart_${userId}`, JSON.stringify(cart));
+    } else {
+      localStorage.removeItem('guestCart');
     }
   }, [cart, user]);
 

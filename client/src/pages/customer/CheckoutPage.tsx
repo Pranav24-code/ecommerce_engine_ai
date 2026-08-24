@@ -93,9 +93,34 @@ export const CheckoutPage: React.FC = () => {
     }
   };
 
+  if (!user) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-20 text-center space-y-6">
+        <div className="w-20 h-20 mx-auto rounded-3xl bg-secondary-500/10 text-secondary-500 flex items-center justify-center border border-secondary-500/20">
+          <Lock className="w-10 h-10" />
+        </div>
+        <div className="max-w-md mx-auto space-y-2">
+          <h2 className="text-2xl font-bold font-display text-slate-900 dark:text-white">
+            Authentication Required for Checkout
+          </h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Please sign in to complete your checkout and link your order history to your personal account.
+          </p>
+        </div>
+        <div className="flex items-center justify-center gap-3 pt-2">
+          <button
+            onClick={() => navigate('/login')}
+            className="px-6 py-3 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm shadow-glow transition-all"
+          >
+            Sign In to Continue
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
-
       {/* Header & Step Indicator */}
       <div className="glass p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800 space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

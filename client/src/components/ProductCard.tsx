@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Star, ShoppingCart, Heart, Eye, Sparkles } from 'lucide-react';
 import { Product } from '../types';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../context/AuthContext';
 
 interface ProductCardProps {
   product: Product;
@@ -20,7 +21,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
       : null;
 
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
   const handleAddToCart = async () => {
+    if (!user) {
+      showToast('Please Sign In or Register to manage your personal cart!', 'info', { title: 'Sign In Required' });
+      navigate('/login');
+      return;
+    }
+
     setAdding(true);
     addToCart(product);
     showToast(`Added "${product.title}" to cart!`, 'success', {

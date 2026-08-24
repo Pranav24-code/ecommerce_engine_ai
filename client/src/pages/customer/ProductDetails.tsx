@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Star, ShoppingCart, ShieldCheck, Truck, RotateCcw, Heart, Send, CheckCircle2, Tag, Layers, Sparkles } from 'lucide-react';
 import { Product, Review } from '../../types';
 import { ProductCard } from '../../components/ProductCard';
@@ -64,8 +64,14 @@ export const ProductDetails: React.FC = () => {
     if (id) fetchProductAndDetails();
   }, [id]);
 
+  const navigate = useNavigate();
+
   const handleAddToCart = () => {
     if (!product) return;
+    if (!user) {
+      navigate('/login');
+      return;
+    }
     addToCart(product, quantity);
     setAddedNotice(true);
     setTimeout(() => setAddedNotice(false), 2000);

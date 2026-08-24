@@ -1,14 +1,21 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Package, Clock, CheckCircle2, Truck, AlertCircle } from 'lucide-react';
 import { Order } from '../../types';
 import { api } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 export const OrdersPage: React.FC = () => {
+  const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchOrders = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
       try {
         const res = await api.get('/orders/my-orders');
         if (res.data.success) {
@@ -21,7 +28,31 @@ export const OrdersPage: React.FC = () => {
       }
     };
     fetchOrders();
-  }, []);
+  }, [user]);
+
+  if (!user) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-20 text-center space-y-6">
+        <div className="w-20 h-20 mx-auto rounded-3xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+          <Package className="w-10 h-10" />
+        </div>
+        <div className="max-w-md mx-auto space-y-2">
+          <h2 className="text-2xl font-bold font-display text-slate-900 dark:text-white">
+            Sign In to View Your Order History
+          </h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Track active shipments, view past receipts, and manage your orders.
+          </p>
+        </div>
+        <Link
+          to="/login"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-primary-600 text-white font-semibold hover:bg-primary-700 transition"
+        >
+          Sign In Now
+        </Link>
+      </div>
+    );
+  }
 
   const getStatusBadge = (status: string) => {
     switch (status) {

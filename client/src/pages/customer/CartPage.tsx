@@ -2,14 +2,48 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Trash2, ArrowRight, Tag, ShoppingBag } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 
 export const CartPage: React.FC = () => {
   const { cart, updateQuantity, removeFromCart, subtotal } = useCart();
+  const { user } = useAuth();
   const [couponCode, setCouponCode] = useState('');
   const [discountAmount, setDiscountAmount] = useState(0);
   const [couponMessage, setCouponMessage] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  if (!user) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-20 text-center space-y-6">
+        <div className="w-20 h-20 mx-auto rounded-3xl bg-primary-500/10 text-primary-500 flex items-center justify-center border border-primary-500/20 shadow-glow-sm">
+          <ShoppingBag className="w-10 h-10" />
+        </div>
+        <div className="max-w-md mx-auto space-y-2">
+          <h2 className="text-2xl font-bold font-display text-slate-900 dark:text-white">
+            Sign In Required to Access Your Cart
+          </h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            To ensure your cart is private and securely synced to your account, please sign in or create an account.
+          </p>
+        </div>
+        <div className="flex items-center justify-center gap-3 pt-2">
+          <Link
+            to="/login"
+            className="px-6 py-3 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm shadow-glow transition-all"
+          >
+            Sign In Now
+          </Link>
+          <Link
+            to="/register"
+            className="px-6 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold text-sm transition-all"
+          >
+            Create Free Account
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const handleApplyCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
