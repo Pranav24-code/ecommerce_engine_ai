@@ -21,12 +21,48 @@ export const CheckoutPage: React.FC = () => {
     country: 'USA',
   });
 
+  const [promoCode, setPromoCode] = useState('');
+  const [appliedCode, setAppliedCode] = useState<string | null>(null);
+  const [promoDiscount, setPromoDiscount] = useState(0);
+
   const [paymentMethod, setPaymentMethod] = useState<'COD' | 'Card'>('COD');
+  const [cardDetails, setCardDetails] = useState({ number: '', exp: '', cvc: '', name: '' });
   const [submitting, setSubmitting] = useState(false);
 
+  const totalDiscount = (location.state?.discountAmount || 0) + promoDiscount;
   const tax = Math.round(subtotal * 0.08 * 100) / 100;
-  const shippingFee = subtotal > 100 ? 0 : 15;
-  const grandTotal = Math.max(0, subtotal + tax + shippingFee - discountAmount);
+  const shippingFee = (subtotal > 100 || appliedCode === 'FREESHIP') ? 0 : 15;
+  const grandTotal = Math.max(0, subtotal + tax + shippingFee - totalDiscount);
+
+  const handleApplyPromo = (e: React.FormEvent) => {
+    e.preventDefault();
+    const code = promoCode.trim().toUpperCase();
+    if (!code) return;
+
+    if (code === 'INTERN20') {
+      const disc = Math.round(subtotal * 0.2 * 100) / 100;
+      setPromoDiscount(disc);
+      setAppliedCode(code);
+    } else if (code === 'FREESHIP') {
+      setAppliedCode(code);
+      setPromoDiscount(0);
+    } else if (code === 'WELCOME10') {
+      setPromoDiscount(10);
+      setAppliedCode(code);
+    } else {
+      alert('Invalid Promo Code. Try INTERN20, FREESHIP, or WELCOME10!');
+    }
+  };
+
+  const handleAutofillDemoCard = () => {
+    setPaymentMethod('Card');
+    setCardDetails({
+      number: '4242 •••• •••• 4242',
+      exp: '12/28',
+      cvc: '888',
+      name: 'Tauqeer Abbas (Demo)',
+    });
+  };
 
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();

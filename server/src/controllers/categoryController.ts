@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Category } from '../models/Category';
 import { cacheService } from '../redis/cacheService';
+import { mockCategories } from '../seed/products';
 
 export const getCategories = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -11,7 +12,18 @@ export const getCategories = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    const categories = await Category.find().sort({ name: 1 });
+    let categories: any[] = [];
+    try {
+      categories = await Category.find().sort({ name: 1 });
+      if (!categories || categories.length === 0) throw new Error('No DB categories');
+    } catch (dbErr) {
+      console.warn('[MongoDB Fallback] Category query failed, returning mock categories');
+      categories = mockCategories.map((c, i) => ({
+        _id: `cat-fallback-${i}`,
+        ...c
+      }));
+    }
+
     await cacheService.set(cacheKey, categories, 1800);
     res.json({ success: true, cached: false, data: categories });
   } catch (error: any) {

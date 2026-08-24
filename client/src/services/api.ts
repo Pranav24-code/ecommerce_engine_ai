@@ -44,3 +44,7 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+export const getProducts = (params: Record<string, any> = {}) => {
+  return api.get('/products', { params });
+};

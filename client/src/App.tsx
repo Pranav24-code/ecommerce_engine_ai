@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { ToastProvider } from './context/ToastContext';
 
 // Layouts
 import { StorefrontLayout } from './layouts/StorefrontLayout';
@@ -36,7 +37,8 @@ export const App: React.FC = () => {
     <ThemeProvider>
       <AuthProvider>
         <CartProvider>
-          <BrowserRouter>
+          <ToastProvider>
+            <BrowserRouter>
             <Routes>
               {/* Storefront Layout Routes */}
               <Route path="/" element={<StorefrontLayout />}>
@@ -69,10 +71,11 @@ export const App: React.FC = () => {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </BrowserRouter>
-        </CartProvider>
-      </AuthProvider>
-    </ThemeProvider>
-  );
+        </ToastProvider>
+      </CartProvider>
+    </AuthProvider>
+  </ThemeProvider>
+);
 };
 
 export default App;

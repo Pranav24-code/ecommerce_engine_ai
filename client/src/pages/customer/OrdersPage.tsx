@@ -79,17 +79,54 @@ export const OrdersPage: React.FC = () => {
                 </div>
               </div>
 
+              {/* Live Order Status Timeline Stepper */}
+              <div className="px-6 pt-4 pb-2 bg-slate-50/50 dark:bg-slate-950/40 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex items-center justify-between max-w-xl mx-auto py-2">
+                  {[
+                    { step: 1, label: 'Order Placed', active: true },
+                    { step: 2, label: 'Approved', active: order.orderStatus !== 'pending' && order.orderStatus !== 'cancelled' },
+                    { step: 3, label: 'Dispatched', active: order.orderStatus === 'dispatched' || order.orderStatus === 'delivered' },
+                    { step: 4, label: 'Delivered', active: order.orderStatus === 'delivered' },
+                  ].map((s, i, arr) => (
+                    <React.Fragment key={i}>
+                      <div className="flex flex-col items-center gap-1">
+                        <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                          s.active ? 'bg-emerald-500 text-white shadow-sm' : 'bg-slate-200 dark:bg-slate-700 text-slate-400'
+                        }`}>
+                          {s.active ? '✓' : s.step}
+                        </div>
+                        <span className={`text-[10px] font-semibold ${s.active ? 'text-slate-800 dark:text-slate-200' : 'text-slate-400'}`}>
+                          {s.label}
+                        </span>
+                      </div>
+                      {i < arr.length - 1 && (
+                        <div className={`flex-1 h-1 mx-2 rounded-full ${arr[i+1].active ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'}`} />
+                      )}
+                    </React.Fragment>
+                  ))}
+                </div>
+              </div>
+
               <div className="p-6 space-y-4">
                 {order.items.map((item, idx) => (
                   <div key={idx} className="flex items-center gap-4">
-                    <img src={item.image} alt={item.title} className="w-16 h-16 rounded-xl object-cover bg-slate-100 dark:bg-slate-800" />
+                    <img src={item.image} alt={item.title} className="w-16 h-16 rounded-xl object-cover bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700" />
                     <div className="flex-1">
-                      <h4 className="font-bold text-sm">{item.title}</h4>
+                      <h4 className="font-bold text-sm text-slate-800 dark:text-slate-100">{item.title}</h4>
                       <p className="text-xs text-slate-500">Qty: {item.quantity} × ₹{item.price}</p>
                     </div>
-                    <span className="font-bold text-sm">₹{(item.quantity * item.price).toFixed(2)}</span>
+                    <span className="font-bold text-sm text-slate-900 dark:text-white">₹{(item.quantity * item.price).toFixed(2)}</span>
                   </div>
                 ))}
+
+                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+                  <button
+                    onClick={() => alert(`Downloading PDF Invoice for Order #${order._id.substring(18)}...`)}
+                    className="text-xs font-bold text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1"
+                  >
+                    📄 Download Tax Invoice (PDF)
+                  </button>
+                </div>
               </div>
             </div>
           ))}

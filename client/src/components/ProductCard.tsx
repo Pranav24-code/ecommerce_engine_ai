@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Star, ShoppingCart, Heart, Eye, Sparkles } from 'lucide-react';
 import { Product } from '../types';
 import { useCart } from '../context/CartContext';
+import { useToast } from '../context/ToastContext';
 
 interface ProductCardProps {
   product: Product;
@@ -10,6 +11,7 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart } = useCart();
+  const { showToast } = useToast();
   const [wishlisted, setWishlisted] = useState(false);
   const [adding, setAdding] = useState(false);
 
@@ -21,7 +23,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const handleAddToCart = async () => {
     setAdding(true);
     addToCart(product);
+    showToast(`Added "${product.title}" to cart!`, 'success', {
+      image: product.images?.[0],
+      title: 'Cart Updated'
+    });
     setTimeout(() => setAdding(false), 700);
+  };
+
+  const handleToggleWishlist = () => {
+    const next = !wishlisted;
+    setWishlisted(next);
+    showToast(
+      next ? `Saved "${product.title}" to wishlist` : `Removed "${product.title}" from wishlist`,
+      next ? 'success' : 'info',
+      { image: product.images?.[0], title: 'Wishlist' }
+    );
   };
 
   const renderStars = (rating: number) =>
@@ -68,7 +84,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {/* Action buttons — reveal on hover */}
         <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 translate-x-3 group-hover:translate-x-0 transition-all duration-300">
           <button
-            onClick={() => setWishlisted((p) => !p)}
+            onClick={handleToggleWishlist}
             title="Save to Wishlist"
             className={`p-2 rounded-xl backdrop-blur-md border transition-all duration-200 shadow-sm ${
               wishlisted
